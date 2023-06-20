@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import init from "../scripts/scene";
+import init from "../scripts/init";
 
 onMounted(() => init())
 </script>
