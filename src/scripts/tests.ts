@@ -2,14 +2,16 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
 
-export const init = (_scene: THREE.Scene, _envMap: THREE.Texture) => {
+export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.Texture) => {
 
     const world = new CANNON.World();
+
+
 
     // constants
     const NUM_EGGS = 30;
     const ORIGIN = new CANNON.Vec3(0, 0, 0);
-    var G = 0.1;
+    var G = 0.5;
 
     // dummy stuff
     const dummyVector = new CANNON.Vec3();
@@ -18,11 +20,34 @@ export const init = (_scene: THREE.Scene, _envMap: THREE.Texture) => {
 
     for (let i = 0; i < NUM_EGGS; i++) {
         const egg = createEgg(_envMap);
+        egg.mesh.userData.ID = i;
         eggs.push(egg);
 
         _scene.add(egg.mesh);
         world.addBody(egg.body);
     }
+
+    // raycasting
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    document.querySelector("canvas")?.addEventListener("pointerdown", (e) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, _camera);
+
+        const intersects = raycaster.intersectObjects(eggs.map(egg => egg.mesh), false);
+
+        if (intersects[0]) {
+            const eggMesh = intersects[0].object;
+            const eggBody = eggs[eggMesh.userData.ID].body;
+            dummyVector.copy(eggBody.position)
+            const forceVec = dummyVector.vsub(new CANNON.Vec3(_camera.position.x, _camera.position.y, _camera.position.z))
+            eggBody.applyImpulse(forceVec.scale(10));
+        }
+    })
 
     const update = () => {
 
@@ -62,9 +87,9 @@ const createEgg = (envMap: THREE.Texture) => {
     const z = Math.random() * spread - spread / 2;
     const pos = new THREE.Vector3(x, y, z);
 
-    const size = Math.random() * 0.2 + 1;
-    // mesh
+    const size = Math.random() * 0.1 + 1;
 
+    // mesh
     const geo = new THREE.SphereGeometry();
     const mat = new THREE.MeshPhysicalMaterial({
         color: "white",
@@ -79,6 +104,9 @@ const createEgg = (envMap: THREE.Texture) => {
     mesh.scale.setScalar(size);
 
     mesh.position.copy(pos);
+
+    mesh.receiveShadow = true;
+    mesh.castShadow = true;
 
     // body
 

@@ -40,7 +40,7 @@ export default async function init() {
     const generator = new THREE.PMREMGenerator(renderer);
     const envMap = generator.fromCubemap(cubeMap).texture;
 
-    const updateTests = TESTS.init(scene, envMap);
+    const updateTests = TESTS.init(scene, camera, envMap);
 
 
     const update = () => {
