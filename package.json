@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "cannon-es": "^0.20.0",
-    "three": "^0.153.0",
+    "three": "^0.162.0",
     "vue": "^3.2.47"
   },
   "devDependencies": {

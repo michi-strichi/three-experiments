@@ -1,12 +1,15 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
+export const init = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera: THREE.Camera) => {
 
-export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.Texture) => {
+    // envmap
+    const textureLoader = new THREE.TextureLoader();
+    const cubeMap = await textureLoader.loadAsync("/cubemap.jpg") as THREE.CubeTexture;
+    const generator = new THREE.PMREMGenerator(_renderer);
+    const envMap = generator.fromCubemap(cubeMap).texture;
 
     const world = new CANNON.World();
-
-
 
     // constants
     const NUM_EGGS = 30;
@@ -19,7 +22,7 @@ export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.
     const eggs = new Array<{ mesh: THREE.Mesh, body: CANNON.Body }>;
 
     for (let i = 0; i < NUM_EGGS; i++) {
-        const egg = createEgg(_envMap);
+        const egg = createEgg(envMap);
         egg.mesh.userData.ID = i;
         eggs.push(egg);
 
@@ -35,9 +38,7 @@ export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.
     document.querySelector("canvas")?.addEventListener("pointerdown", (e) => {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
         raycaster.setFromCamera(mouse, _camera);
-
         const intersects = raycaster.intersectObjects(eggs.map(egg => egg.mesh), false);
 
         if (intersects[0]) {
@@ -50,28 +51,22 @@ export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.
     })
 
     const update = () => {
-
         eggs.forEach(egg => {
-
             dummyVector.copy(ORIGIN);
             const r = dummyVector.vsub(egg.body.position);
             const distance = Math.max(r.length(), 1);
-
             const forceMagnitude = G * (1000 * egg.body.mass) / Math.pow(distance, 2);
-
             r.normalize()
             const force = r.scale(forceMagnitude);
-
             egg.body.applyForce(force, egg.body.position);
-
         })
 
         world.step(1 / 60)
-
-        eggs.forEach(egg => {
-            egg.mesh.position.set(egg.body.position.x, egg.body.position.y, egg.body.position.z)
-        })
-
+        eggs.forEach(egg => egg.mesh.position.set(
+            egg.body.position.x,
+            egg.body.position.y,
+            egg.body.position.z)
+        );
     }
 
     return update;
@@ -80,13 +75,11 @@ export const init = (_scene: THREE.Scene, _camera: THREE.Camera, _envMap: THREE.
 export default init;
 
 const createEgg = (envMap: THREE.Texture) => {
-
     const spread = 10;
     const x = Math.random() * spread - spread / 2;
     const y = Math.random() * spread - spread / 2;
     const z = Math.random() * spread - spread / 2;
     const pos = new THREE.Vector3(x, y, z);
-
     const size = Math.random() * 0.1 + 1;
 
     // mesh
@@ -102,14 +95,11 @@ const createEgg = (envMap: THREE.Texture) => {
 
     const mesh = new THREE.Mesh(geo, mat);
     mesh.scale.setScalar(size);
-
     mesh.position.copy(pos);
-
     mesh.receiveShadow = true;
     mesh.castShadow = true;
 
     // body
-
     const body = new CANNON.Body({
         shape: new CANNON.Sphere(size),
         position: new CANNON.Vec3(pos.x, pos.y, pos.z),
@@ -118,5 +108,4 @@ const createEgg = (envMap: THREE.Texture) => {
     })
 
     return { mesh, body };
-
 }
