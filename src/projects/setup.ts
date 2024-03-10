@@ -40,9 +40,10 @@ export default async function setup(canvas: HTMLCanvasElement) {
 
 	const animate = () => {
 		requestAnimationFrame(animate);
-		renderer.render(scene, camera);
 		update();
 		stats.update();
+
+		renderer.render(scene, camera);
 	}
 
 	const onWindowResize = () => {
