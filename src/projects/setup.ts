@@ -2,7 +2,8 @@ import * as THREE from "three";
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // import init from "./amphibian-eggs/main";
-import init from "./generative-treehoppers/main";
+// import init from "./generative-treehoppers/main";
+import init from "./ontogenesis/main"
 
 export default async function setup(canvas: HTMLCanvasElement) {
 
@@ -32,11 +33,7 @@ export default async function setup(canvas: HTMLCanvasElement) {
 	const grid = new THREE.GridHelper(50, 20);
 	scene.add(grid)
 
-	const updateProject = await init(renderer, scene, camera);
-
-	const update = () => {
-		updateProject();
-	}
+	const update = await init(renderer, scene, camera);
 
 	const animate = () => {
 		requestAnimationFrame(animate);

@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
+import { initFunction } from "../types";
 
-export const init = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera: THREE.Camera) => {
+export const init: initFunction = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera: THREE.Camera) => {
 
     // envmap
     const textureLoader = new THREE.TextureLoader();

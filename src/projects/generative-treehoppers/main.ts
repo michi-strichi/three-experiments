@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
+import { initFunction } from "../types";
 
-const init = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera: THREE.Camera): Promise<() => void> => {
+const init: initFunction = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera: THREE.Camera): Promise<() => void> => {
 
 	const RESULUTION = 10;
 	const mat = new THREE.MeshStandardMaterial({ color: "red", side: THREE.DoubleSide });
@@ -20,13 +21,13 @@ const init = async (_renderer: THREE.WebGLRenderer, _scene: THREE.Scene, _camera
 	effect.addBall(0, 0, 0, 1, 0.5, new THREE.Color("red"));
 	effect.addBall(2, 2, 2, 10, 0.5);
 	effect.addPlaneX(10, 10)
-	
+
 	effect.update();
 	// const mesh = new THREE.Mesh(new THREE.BoxGeometry, new THREE.MeshStandardMaterial({ color: "red" }))
 	// _scene.add(mesh);
 
 	return () => {
-	effect.reset();
+		effect.reset();
 		effect.update();
 	}
 
